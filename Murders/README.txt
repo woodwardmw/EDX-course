@@ -1,0 +1,1 @@
+This is a test project, to experiment with how I want to structure my directories. It has been set up following the EDX course Data Science: Productivity Tools.
