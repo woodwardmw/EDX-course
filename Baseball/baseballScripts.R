@@ -118,3 +118,28 @@ bat_99_02 %>% ggplot(aes(bb, mean_bb)) + geom_point()
 
 lm(singles ~ mean_singles, data = bat_99_02)
 lm(bb ~ mean_bb, data = bat_99_02)
+
+
+get_slope <- function(data) {
+  fit <- lm(R ~ BB, data = data)
+  sum.fit <- summary(fit)
+  
+  data.frame(slope = sum.fit$coefficients[2, "Estimate"], 
+             se = sum.fit$coefficients[2, "Std. Error"],
+             pvalue = sum.fit$coefficients[2, "Pr(>|t|)"])
+}
+
+library(broom)
+
+dat %>% 
+  group_by(HR) %>% 
+  do(get_slope(.))
+
+dat <- Teams %>% filter(yearID %in% 1961:2001) %>%
+  mutate(HR = HR/G,
+         R = R/G) %>%
+  select(lgID, HR, BB, R) 
+dat %>% 
+  group_by(lgID) %>% 
+  do(tidy(lm(R ~ HR, data = .), conf.int = T)) %>% 
+  filter(term == "HR") 

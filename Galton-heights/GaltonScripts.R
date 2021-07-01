@@ -183,3 +183,26 @@ fit <-female_heights %>% lm(mother ~ daughter, data = .)
 head(female_heights)
 predict(fit)[1]
 
+
+# 2.3 Question 8
+library(tidyverse)
+library(HistData)
+data("GaltonFamilies")
+set.seed(1, sample.kind = "Rounding") # if you are using R 3.6 or later
+
+galton <- GaltonFamilies %>%
+  group_by(family, gender)%>%
+  sample_n(1)  %>%  
+  ungroup() %>% 
+  gather(parent, parentHeight, father:mother) %>%  
+  mutate(child = ifelse(gender == "female", "daughter", "son"))  %>%
+unite(pair, c("parent", "child"))
+
+# I think gather() combines father and mother columns into a single column parent, value parentheight. help file says to now use pivot_longer() instead
+galton %>% group_by(pair) %>% summarise(n())
+galton %>%
+  group_by(pair) %>%
+  summarize(cor = cor(parentHeight, childHeight))
+
+galton %>% group_by(pair) %>% do(tidy(lm(childHeight ~ parentHeight, data = .), conf.int = TRUE)) %>% filter (term == "parentHeight" & pair == "father_daughter") %>% pull (estimate)
+galton %>% group_by(pair) %>% do(tidy(lm(childHeight ~ parentHeight, data = .), conf.int = TRUE)) %>% filter (term == "parentHeight")
